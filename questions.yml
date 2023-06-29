@@ -1,0 +1,92 @@
+labels:
+  io.cattle.role: project # options are cluster/project
+  io.rancher.app_min_version: 0.1.0
+categories:
+- nexus3
+questions:
+# #################  镜像相关  ##################
+- variable: image.registry
+  group: "镜像选择"
+  default: "opendata.sobeylingyun.com"
+  description: "镜像服务器地址"
+  type: enum
+  required: true
+  label: 镜像服务器地址
+  options:
+    - "opendata.sobeylingyun.com"
+    - "harbor.sobey.com"
+- variable: image.arch
+  group: "镜像选择"
+  default: "x86"
+  description: "CPU架构"
+  type: enum
+  required: true
+  label: CPU架构
+  options:
+    - "x86"
+    - "arm64"
+################### 基础配置 ######################
+- variable: defaultHttpBackend
+  label: 默认的转发后端，指向一个Service。比如【cattle-system/rancher】
+  group: "基础配置"
+  description: "nginx ingress和traefik不同，它直接通过hostnetwork处理流量，这里它其实就是l4loadbalance，因此要(可以)指定不同的后端"
+  type: string
+  required: false
+  default: "cattle-system/rancher"
+- variable: defaultSSLCertificate
+  label: 默认的Ingress入口SSL证书。比如【cattle-system/tls-rancher-ingress】
+  group: "基础配置"
+  description: "证书可以手动创建，或者用命令行创建。默认采用的是rancher的证书"
+  type: string
+  required: false
+  default: "cattle-system/tls-rancher-ingress"
+- variable: ingressClassName
+  label: Ingress控制器类名。用于Ingress指定特定的控制器
+  group: "基础配置"
+  description: "Ingress通过kubernetes.io/ingress.class这个annonation来选择控制器"
+  type: string
+  required: true
+  default: "nginx"
+################### 端口配置 ######################
+- variable: portHttp
+  group: "端口配置"
+  default: 80
+  description: "IngressController的HTTP端口"
+  type: int
+  required: true
+  label: "IngressController的HTTP端口"
+- variable: portHttps
+  group: "端口配置"
+  default: 443
+  description: "IngressController的HTTPS端口"
+  type: int
+  required: true
+  label: "IngressController的HTTPS端口"
+################### 能力配置 ######################
+- variable: replaceTraefik
+  group: "能力配置"
+  default: true
+  label: 是否替换默认的Traefik Ingress Controller
+  description: "K3S默认采用Traefik作为IngressController，开启此配置以后，将关闭Traefik。【注意端口占用】"
+  type: enum
+  options:
+    - true
+    - false
+  required: false
+- variable: disableHSTS
+  group: "能力配置"
+  default: false
+  label: 是否关闭http自动重定向到https，默认【开启】
+  description: "默认情况下http始终会30x redirect到https，这里控制是否关闭这个功能"
+  type: enum
+  options:
+    - true
+    - false
+  required: false
+################### 节点选择 ######################
+- variable: nodeSelector
+  label: 节点选择标签，逗号分隔。例如：【node=test,type=ssh】
+  group: "节点选择标签设置"
+  description: "节点选择标签，设置以后，将分配POD到对应标签的节点上。配置样例：【node=test,type=ssh】。"
+  type: string
+  required: false

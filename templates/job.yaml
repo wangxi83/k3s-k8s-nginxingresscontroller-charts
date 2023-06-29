@@ -1,0 +1,36 @@
+# 用一个job来修改ingress
+# 并且关闭traefik
+{{- if .Values.replaceTraefik }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ingress-update
+spec:
+  template:
+    spec:
+      serviceAccountName: nginx-ingress-serviceaccount
+      containers:
+        - name: ingress-update
+          image: rancher/nginx-ingress-controller:nginx-0.35.0-rancher2
+          imagePullPolicy: IfNotPresent
+          command:
+          - /bin/sh
+          - -c
+          - |
+            # 通过kubeapi来调用
+            export APISERVER=https://kubernetes.default.svc
+            export SERVICEACCOUNT=/var/run/secrets/kubernetes.io/serviceaccount
+            export TOKEN=$(cat ${SERVICEACCOUNT}/token)
+            export CACERT=${SERVICEACCOUNT}/ca.crt
+            # 删除traefik
+            curl -s --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X DELETE ${APISERVER}/apis/apps/v1/namespaces/kube-system/deployments/traefik
+            # 删除traefik的L4
+            curl -s --cacert ${CACERT} --header "Authorization: Bearer ${TOKEN}" -X DELETE ${APISERVER}/api/v1/namespaces/kube-system/services/traefik
+
+            while true; do
+              echo "job done"
+              sleep 100
+            done
+      restartPolicy: Never
+  backoffLimit: 4
+{{- end}}

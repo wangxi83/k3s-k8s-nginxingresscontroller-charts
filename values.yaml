@@ -1,0 +1,45 @@
+# ------------------------------------------------------------------------------
+
+#image:
+#  registry: opendata.sobeylingyun.com
+#  arch: "x86"
+#  nexus:
+#    repository_x86: ficus/nexus3
+#    repository_arm64: ficus-arm/nexus3
+#    tag_x86: "3.24.0"
+#    tag_arm64: "3.24.0"
+#  nginx:
+#    repository_x86: ficus/nginx
+#    repository_arm64: ficus-arm/nginx
+#    tag_x86: "stable"
+#    tag_arm64: "stable"
+#  rsync:
+#     repository_x86: ficus/rsync
+#     repository_arm64: ficus-arm/rsync
+#     tag_x86: "1.0"
+#     tag_arm64: "1.0"
+#  pullPolicy: IfNotPresent
+#
+#replicaCount: 2
+
+# 镜像来自于https://hub.docker.com/u/minio
+image:
+  registry: opendata.sobeylingyun.com
+  arch: "x86"
+  repository_x86: ficus/nginx-ingress-controller
+  repository_arm64: ficus-arm/nginx-ingress-controller
+  tag_x86: "v0.47.0"
+  tag_arm64: "v0.47.0"
+  pullPolicy: IfNotPresent
+
+ingressClassName: "nginx"
+defaultHttpBackend: "cattle-system/rancher"
+defaultSSLCertificate:  "cattle-system/tls-rancher-ingress"
+portHttp: 80
+portHttps: 443
+replaceTraefik: true
+disableHSTS: false
+
+## Node labels for pod assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+nodeSelector: {}
